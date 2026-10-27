@@ -9,7 +9,9 @@
 
 课期面向西安交通大学思源学堂与中国大学 MOOC / SPOC，自动发现已参加课程，汇总任务、公告和时间要求。首次登录完成后，无需逐门打开课程，也无需每次手动同步。
 
-**当前版本：1.0.2。** 本仓库提供源码；安装包需在 Windows 本地构建，当前未上传到 GitHub Releases。
+**当前版本：1.0.2。** [下载安装包](https://github.com/waaogg/course-reminder/releases/tag/v1.0.2) · [全部版本](https://github.com/waaogg/course-reminder/releases)
+
+下载需要此私有仓库的访问权限。Windows x64安装包附带浏览器和OCR资源，无需另装Node.js。
 
 [功能预览](#功能预览) · [快速开始](#快速开始) · [AI-辅助](#ai-辅助) · [本机-api](#本机-api) · [开发](#开发) · [使用边界](#使用边界)
 
@@ -55,7 +57,7 @@
 
 ### 安装与连接
 
-1. 在Windows x64上按下方开发步骤构建，运行生成的 `release/CourseReminder-1.0.2-Setup.exe`。
+1. 从[Release页面](https://github.com/waaogg/course-reminder/releases/tag/v1.0.2)下载 `CourseReminder-1.0.2-Setup.exe`，在Windows x64上运行；也可按下方步骤从源码构建。
 2. 打开课期，在“课程与采集”中分别打开两个平台的专用登录窗口，自行完成登录及验证码。
 3. 按窗口提示结束登录，程序开始后台自动采集；日后优先复用本机专用登录状态。
 4. 在“设置”中确认同步间隔、通知和免打扰时间，可选择登录Windows时启动。
