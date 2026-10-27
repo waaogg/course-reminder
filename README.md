@@ -135,6 +135,12 @@ npx tsx scripts/smoke.ts --packaged --resources
 
 README截图可通过 `npx tsx scripts/readme-screenshots.ts` 重新生成；须先执行 `npm run build`。该脚本使用独立演示数据库，不读取个人登录配置或课程数据库。
 
+### GitHub远端构建
+
+在仓库Actions中运行 **Build Windows Release**，或推送与 `package.json` 版本一致的 `vX.Y.Z` 标签，即可触发Windows构建。流程安装依赖和浏览器资源，运行类型检查、单元/集成/SQLite测试、打包后的浏览器/OCR与任务界面检查，通过后生成安装包、校验文件和构建信息，上传并发布对应Release。
+
+版本说明须放在 `docs/RELEASE-NOTES-X.Y.Z.md`。流程不需要个人课程登录状态或AI Key。已正式发布的同版本不会被自动覆盖；草稿可恢复。首次运行状态见[Actions](https://github.com/waaogg/course-reminder/actions/workflows/release.yml)。
+
 ### 代码结构
 
 ```text

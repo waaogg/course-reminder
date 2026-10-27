@@ -26,10 +26,6 @@ Windows x64安装版。下载 `CourseReminder-1.0.2-Setup.exe` 后运行，首�
 
 ## 校验
 
-文件：`CourseReminder-1.0.2-Setup.exe`
+请以本次Release附件 `SHA256SUMS-1.0.2.txt` 中的SHA256为准，使用PowerShell `Get-FileHash` 核对下载文件。远端构建附带 `build-info.json`，包含源代码提交、构建运行链接、实际文件大小和校验值。
 
-大小：493337940字节
-
-SHA256：`146F53A11A87607AE17A34496EA237BFF218FE932E2FB70F2C1BC4896FA31AB7`
-
-附带 `SHA256SUMS-1.0.2.txt`，可用PowerShell `Get-FileHash` 核对。
+不同构建产生的安装包可能具有不同校验值，不要混用本机历史构建与远端构建的校验文件。
