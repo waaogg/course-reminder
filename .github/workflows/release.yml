@@ -1,0 +1,101 @@
+name: Build Windows Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 45
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Check release version
+        id: version
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tag = "v$version"
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) { throw 'Tag and package version differ' }
+          if (!(Test-Path "docs/RELEASE-NOTES-$version.md")) { throw 'Release notes missing' }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+      - run: npm ci
+      - run: npm run setup:browser
+      - run: npm run resources
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - run: npm run test:integration
+      - run: npm run test:store
+      - name: Build Windows installer
+        run: npm run dist:win -- --publish never
+      - name: Verify packaged browser, OCR and desktop behavior
+        run: npx tsx scripts/smoke.ts --packaged --resources
+      - name: Verify task filters, duplicate sources and late submission
+        run: npx tsx scripts/task-views-check.ts --packaged
+      - name: Checksums and build provenance
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $file = Get-Item "release/CourseReminder-$version-Setup.exe"
+          $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+          "$hash  $($file.Name)" | Set-Content "release/SHA256SUMS-$version.txt" -Encoding utf8NoBOM
+          @{ version=$version; commit=$env:GITHUB_SHA; run="https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"; installer=$file.Name; bytes=$file.Length; sha256=$hash } | ConvertTo-Json | Set-Content release/build-info.json -Encoding utf8NoBOM
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-release
+          path: |
+            release/*-Setup.exe
+            release/SHA256SUMS-*.txt
+            release/build-info.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: windows-release
+          path: release-assets
+      - name: Verify and publish release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          cd release-assets
+          sha256sum --check "SHA256SUMS-$version.txt"
+          cd ..
+          # Existing published versions are immutable; reruns may only recover drafts.
+          if gh release view "$RELEASE_TAG" --json isDraft > release-state.json 2>/dev/null; then
+            if ! node -e "const r=require('./release-state.json'); process.exit(r.isDraft ? 0 : 1)"; then
+              echo 'Release is already published; refusing to replace its assets.' >&2
+              exit 1
+            fi
+          else
+            gh release create "$RELEASE_TAG" --draft --target "$GITHUB_SHA" --title "课期 $version · Windows x64" --notes-file "docs/RELEASE-NOTES-$version.md"
+          fi
+          gh release upload "$RELEASE_TAG" release-assets/* --clobber
+          gh release edit "$RELEASE_TAG" --target "$GITHUB_SHA" --notes-file "docs/RELEASE-NOTES-$version.md" --draft=false --latest
