@@ -11,7 +11,7 @@
 
 **当前版本：1.0.2。** [下载安装包](https://github.com/waaogg/course-reminder/releases/tag/v1.0.2) · [全部版本](https://github.com/waaogg/course-reminder/releases)
 
-下载需要此私有仓库的访问权限。Windows x64安装包附带浏览器和OCR资源，无需另装Node.js。
+Windows x64安装包附带浏览器和OCR资源，无需另装Node.js。
 
 [功能预览](#功能预览) · [快速开始](#快速开始) · [AI-辅助](#ai-辅助) · [本机-api](#本机-api) · [开发](#开发) · [使用边界](#使用边界)
 
@@ -109,7 +109,7 @@ npm run setup:browser
 npm run dev
 ```
 
-这是私有仓库，克隆需要相应访问权限。浏览器安装与首次准备资源需要网络；登录时使用应用专用配置，不复用日常浏览器的默认配置。
+浏览器安装与首次准备资源需要网络；登录时使用应用专用配置，不复用日常浏览器的默认配置。
 
 ### 检查与构建
 
