@@ -48,3 +48,7 @@
 
 ## 最终核验
 1.0.1已交付（2026-10-27 17:13）：完成与逾期未提交分开、老师待办独立；MOOC/SPOC重复优先SPOC并保留原始来源；思源补交明确允许/关闭/待核实及独立补交截止。39单元、8集成、SQLite去重及补交独立提醒/提交取消、packaged界面/资源验证通过；实际安装版本1.0.1、asar一致、窗口1838462保持运行。17:09:15 MOOC和17:12:19思源均成功；真实课后练习上传在正式窗口逾期分类显示逾期可补交、原10月25日23:59保留。原89记录保留，展示70任务、17主课程/20来源。补交期限尚无真实样本，解析与独立调度由合成及数据库测试验证，不宣称绝对覆盖。安装包493337960字节，SHA256 C53D3FD03DDA28C5A01248404A1530F262F73A7B6B5DDB9DC4346BB2964BD9D2，收据.runtime/release-verification-1.0.1.json。
+
+## GitHub远端构建验收
+
+2026-10-27远端Release发布验收通过：GitHub Actions run40488421268（commit66c8c49660b36157ec83eb3d1e7b3c805e89964a）build及publish均success，v1.0.2正式发布，draft=false。安装包493335352字节，SHA256 60B0B08385D1615403424713A50D614A25EA705E472BB2D5D18A021C1F8D263E。已下载校验文本/build-info并与GitHub资产digest逐项匹配；无需下载500MB回本机再次验证。该远端包不同于本机历史493337940字节/146F...，不能混用校验。Release https://github.com/waaogg/course-reminder/releases/tag/v1.0.2 。本地旧上传与收尾已停止，当前收据.runtime/github-release-result.json已改published。自动构建标签/手动触发流程已启用且实际跑通，不是仅写配置。
