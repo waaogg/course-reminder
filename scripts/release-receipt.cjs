@@ -1,0 +1,18 @@
+const Database=require('better-sqlite3');
+const {join}=require('node:path');
+const {writeFileSync}=require('node:fs');
+const assert=require('node:assert/strict');
+const db=new Database(join(process.env.APPDATA,'course-reminder','reminder.sqlite'),{readonly:true});
+const rows=t=>db.prepare(`SELECT payload FROM ${t}`).all().map(r=>JSON.parse(r.payload));
+const meta=k=>db.prepare('SELECT value FROM meta WHERE key=?').get(k)?.value;
+const accounts=rows('accounts'),coverage=rows('coverage'),documents=rows('documents'),requirements=rows('requirements');
+const settings=JSON.parse(meta('settings')||'{}');
+const corrected=requirements.filter(r=>r.taskId==='8c86ac90bf3231c32fc2cf30'&&r.date==='2026-10-08');
+assert.ok(accounts.every(a=>a.state==='ready'));
+assert.ok(coverage.every(c=>c.status==='success'));
+assert.ok(corrected.length&&corrected.every(r=>r.retired));
+assert.equal(settings.intervalMinutes,30);
+assert.ok(meta('lastNotificationClick'));
+const receipt={at:new Date().toISOString(),integrity:db.pragma('integrity_check',{simple:true}),courses:rows('courses').length,tasks:rows('tasks').length,coverage:coverage.length,coverageErrors:0,accounts:accounts.map(a=>({platform:a.platform,state:a.state,lastCompleteSuccess:a.lastSuccess})),documents:documents.reduce((a,d)=>(a[d.status]=(a[d.status]||0)+1,a),{}),publishedTimestampRequirementRetired:true,lastNotificationClick:meta('lastNotificationClick'),intervalMinutes:settings.intervalMinutes,autoStart:settings.autoStart};
+assert.equal(receipt.integrity,'ok');
+writeFileSync('.runtime/release-verification.json',JSON.stringify(receipt,null,2));console.log(JSON.stringify(receipt,null,2));db.close();

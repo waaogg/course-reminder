@@ -1,0 +1,22 @@
+node_modules/
+out/
+release/
+.planning-backups/
+.runtime/
+.test-data/
+test-results/
+*.sqlite*
+*.log
+resources/browser/
+resources/models/
+resources/resource-manifest.json
+.env*
+!*.example
+
+# Local continuation history and private platform research
+MEMORIES.md
+PROGRESS.md
+docs/RESEARCH-*.md
+*.har
+*.trace
+playwright-report/

@@ -1,0 +1,100 @@
+{
+  "name": "course-reminder",
+  "version": "1.0.2",
+  "description": "课期 · 学业任务与截止提醒",
+  "main": "out/main/index.js",
+  "author": "Reminder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "tsx scripts/smoke.ts",
+    "dist:win": "npm run resources && npm run build && electron-builder --win nsis --x64",
+    "resources": "tsx scripts/prepare-resources.ts",
+    "setup:browser": "playwright install chromium",
+    "collector:login": "tsx scripts/login.ts",
+    "collector:scan": "tsx scripts/scan.ts",
+    "postinstall": "electron-builder install-app-deps",
+    "test:store": "tsx scripts/test-store.ts",
+    "test:packaged": "tsx scripts/smoke.ts --packaged"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.13",
+    "@tesseract.js-data/chi_sim": "^1.0.0",
+    "@tesseract.js-data/eng": "^1.0.0",
+    "better-sqlite3": "13.0.3",
+    "exceljs": "^4.4.0",
+    "lucide-react": "^0.577.0",
+    "mammoth": "^1.11.0",
+    "pdfjs-dist": "6.4.299",
+    "playwright": "1.64.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "tesseract.js": "^7.0.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "electron": "45.0.0",
+    "electron-builder": "26.18.0",
+    "electron-vite": "6.0.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  },
+  "build": {
+    "appId": "cn.course.reminder",
+    "productName": "课期",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "**/*.node",
+      "**/tesseract.js/**",
+      "**/tesseract.js-core/**",
+      "**/pdfjs-dist/**"
+    ],
+    "extraResources": [
+      {
+        "from": "resources",
+        "to": "assets",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "artifactName": "CourseReminder-${version}-Setup.${ext}",
+      "signAndEditExecutable": true,
+      "icon": "resources/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
+    }
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
+  }
+}
