@@ -30,3 +30,38 @@ it("keeps original and supplemental deadlines independently identifiable", () =>
   expect(lateSubmissionLabel(t, Date.parse(at))).toBe("逾期可补交");
   expect(lateSubmissionLabel(t, Date.parse("2026-11-01"))).toBe("补交期限已过");
 });
+
+it("never substitutes a start time, publication time or an unlabelled date", () => {
+  expect(regularDeadline("大学化学第四章作业\n开始时间：2026-10-28 10:00")).toBe("");
+  expect(regularDeadline("发布时间：2026-10-28 10:00")).toBe("");
+  expect(regularDeadline("2026-10-28 10:00\n未开放")).toBe("");
+});
+
+it("selects the explicit ending even when the start appears first", () => {
+  expect(regularDeadline("开始时间：2026-10-28 10:00\n截止时间：2026-11-05 23:59"))
+    .toBe("2026-11-05 23:59");
+  expect(regularDeadline("开始时间：2026-10-28 10:00\n结束时间\n2026-11-05 23:59"))
+    .toBe("2026-11-05 23:59");
+});
+
+it("uses only the right endpoint of a complete labelled activity interval", () => {
+  for (const separator of ["至", "~", "—", " - ", "\n至\n"]) {
+    expect(regularDeadline(`活动时间\n2026-10-28 10:00${separator}2026-11-05 23:59`))
+      .toBe("2026-11-05 23:59");
+  }
+  expect(regularDeadline("活动时间：2026-10-28 10:00")).toBe("");
+  expect(regularDeadline("活动时间\n2026-10-28\n10:00\n至\n2026-11-05\n23:59"))
+    .toBe("2026-11-05\n23:59");
+  expect(regularDeadline("开始时间：2026-10-28 10:00 至 2026-11-05 23:59")).toBe("");
+});
+
+it("supports Chinese dates and keeps date-only deadlines without invented hours", () => {
+  expect(regularDeadline("截止日期：2026年11月5日")).toBe("2026年11月5日");
+  expect(regularDeadline("结束于：2026/11/05 23：30")).toBe("2026/11/05 23:30");
+});
+
+it("does not relabel a supplemental date as an empty regular deadline", () => {
+  expect(regularDeadline("截止时间\n补交截止时间\n2026-11-05 23:59")).toBe("");
+  expect(regularDeadline("补交截止时间：2026-11-08 23:59\n活动时间：2026-10-28 10:00～2026-11-05 23:59"))
+    .toBe("2026-11-05 23:59");
+});
