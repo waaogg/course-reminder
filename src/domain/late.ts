@@ -39,13 +39,22 @@ export function lateRequirement(
   return r ? { ...r, id: uid(taskId, "late"), phase: "late" } : null;
 }
 export function regularDeadline(text: string): string {
-  return (
-    text
-      .split(/\n/)
-      .filter((s) => !/补交|迟交|晚交/.test(s))
-      .join("\n")
-      .match(
-        /(?:结束于|结束时间|截止时间)\s*[:：]?\s*(20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\s+\d{1,2}:\d{2})/,
-      )?.[1] || ""
-  );
+  const ordinary = text
+    .normalize("NFKC")
+    .split(/\n/)
+    // Keep a boundary: removing a supplemental label could attach its date to
+    // an empty ordinary-deadline label on the preceding line.
+    .map((line) => /补交|迟交|晚交/.test(line) ? "\uFFFC" : line)
+    .join("\n");
+  const date = String.raw`20\d{2}[年.\/-]\d{1,2}[月.\/-]\d{1,2}日?(?:\s+\d{1,2}:\d{2}(?::\d{2})?)?`;
+  // Start/publication times and arbitrary dates are never deadline evidence.
+  const explicit = ordinary.match(new RegExp(
+    String.raw`(?:结束于|结束时间|结束日期|截止时间|截止日期|截止于|截止)\s*[:：]?\s*(${date})`,
+  ));
+  if (explicit) return explicit[1];
+  // Some detail pages expose only an activity interval. Its right endpoint is
+  // the deadline; both endpoints and a range separator must actually exist.
+  return ordinary.match(new RegExp(
+    String.raw`(?:活动时间|作业时间|测试时间|考试时间)\s*[:：]?\s*${date}\s*(?:至|到|~|～|—|–|－|-|→)\s*(${date})`,
+  ))?.[1] || "";
 }

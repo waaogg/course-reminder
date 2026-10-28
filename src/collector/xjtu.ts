@@ -89,12 +89,7 @@ async function readDetail(
     .trim();
   const deadline =
     regularDeadline(text) ||
-    listing.text
-      .split(/\n/)
-      .filter((s) => !/补交|迟交|晚交/.test(s))
-      .join("\n")
-      .match(/20\d{2}[.\/-]\d{1,2}[.\/-]\d{1,2}\s+\d{1,2}:\d{2}/)?.[0] ||
-    "";
+    regularDeadline(listing.text);
   const task = makeTask(
     course,
     remote,
